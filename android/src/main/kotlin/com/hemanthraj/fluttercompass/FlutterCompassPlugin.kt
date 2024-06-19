@@ -115,6 +115,8 @@ class FlutterCompassPlugin : FlutterPlugin, EventChannel.StreamHandler {
         override fun onSensorChanged(event: SensorEvent) {
             if (lastAccuracySensorStatus == SensorManager.SENSOR_STATUS_UNRELIABLE) {
                 Log.d(TAG, "Compass sensor is unreliable, device calibration is needed.")
+                eventSink.success("calibration")
+                return
                 // Update the heading, even if the sensor is unreliable.
                 // This makes it possible to use a different indicator for the unreliable case,
                 // instead of just changing the RenderMode to NORMAL.
@@ -154,7 +156,6 @@ class FlutterCompassPlugin : FlutterPlugin, EventChannel.StreamHandler {
             var heading = calculateHeading(accelerometerReading, magneticReading)
             heading = convertRadtoDeg(heading)
             heading = map180to360(heading)
-
             notifyCompassChangeListeners(heading.toDouble())
         }
 
@@ -180,12 +181,10 @@ class FlutterCompassPlugin : FlutterPlugin, EventChannel.StreamHandler {
             if(degrees.isNaN()) {
                 return
             }
-
             val data = DoubleArray(3)
             data[0] = degrees
             data[1] = 0.0
             data[2] = accuracy.toDouble()
-
             eventSink.success(data)
             lastHeading = degrees.toFloat()
         }

@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -93,16 +94,20 @@ class _MyAppState extends State<MyApp> {
     return StreamBuilder<CompassEvent>(
       stream: FlutterCompass.events,
       builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Text('Error reading heading: ${snapshot.error}');
-        }
+        log(snapshot.data.toString());
+        // if (snapshot.hasError) {
+        //   return Text('Error reading heading: ${snapshot.error}');
+        // }
 
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
             child: CircularProgressIndicator(),
           );
         }
-
+        if (snapshot.data?.errorMessage != null)
+          return Center(
+            child: Text(snapshot.data?.errorMessage ?? ""),
+          );
         double? direction = snapshot.data!.heading;
 
         // if direction is null, then device does not support this sensor
